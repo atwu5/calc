@@ -11,7 +11,14 @@ import RetirementPage from './pages/RetirementPage'
 import DaysAlivePage from './pages/DaysAlivePage'
 import AnniversaryPage from './pages/AnniversaryPage'
 import HourlyWagePage from './pages/HourlyWagePage'
-import WealthPage from './pages/WealthPage'
+
+/** 财富 A 级测算：独立静态页（docs/wealth.html，与设计稿逐字一致），整页跳转 */
+function WealthRedirect() {
+  useEffect(() => {
+    window.location.replace('./wealth.html')
+  }, [])
+  return null
+}
 
 export default function App() {
   const route = useHashRoute()
@@ -26,6 +33,6 @@ export default function App() {
   if (route === '/days') return <DaysAlivePage />
   if (route === '/anniversary') return <AnniversaryPage />
   if (route === '/wage') return <HourlyWagePage />
-  if (route === '/wealth') return <WealthPage />
+  if (route === '/wealth') return <WealthRedirect />
   return <HomePage />
 }
