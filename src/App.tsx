@@ -11,6 +11,7 @@ import RetirementPage from './pages/RetirementPage'
 import DaysAlivePage from './pages/DaysAlivePage'
 import AnniversaryPage from './pages/AnniversaryPage'
 import HourlyWagePage from './pages/HourlyWagePage'
+import WealthPage from './pages/WealthPage'
 
 export default function App() {
   const route = useHashRoute()
@@ -25,5 +26,6 @@ export default function App() {
   if (route === '/days') return <DaysAlivePage />
   if (route === '/anniversary') return <AnniversaryPage />
   if (route === '/wage') return <HourlyWagePage />
+  if (route === '/wealth') return <WealthPage />
   return <HomePage />
 }

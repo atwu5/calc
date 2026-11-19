@@ -16,4 +16,5 @@ export const TOOLS: ToolMeta[] = [
   { path: '/days', icon: '🌱', name: '出生天数', desc: '看看你已经来到世界多少天', tint: '#E7F8F1' },
   { path: '/anniversary', icon: '💞', name: '纪念日计算器', desc: '每个重要日子，都值得记录', tint: '#FDEEF5' },
   { path: '/wage', icon: '⚡', name: '时薪计算器', desc: '算算你每小时、每分钟值多少钱', tint: '#FEF7E6' },
+  { path: '/wealth', icon: '🏆', name: '财富 A 级测算', desc: '测测你的财富段位，看看多久能升级', tint: '#F5F0DE' },
 ]

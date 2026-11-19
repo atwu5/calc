@@ -242,3 +242,21 @@ details > summary::-webkit-details-marker {
 input[type='date'].tb-input {
   min-height: 44px;
 }
+
+/* 尊重系统的减少动画设置（需求文档：禁止持续高负载动画） */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .tb-pop,
+  .fade-in,
+  .drawer-in {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -16,7 +16,7 @@
 
 ## 生活计算工具箱（2026-11 升级）
 
-本仓库已从单一「Offer 到手对比」升级为 **六合一计算工具箱**，原 Offer 对比功能完整保留：
+本仓库已从单一「Offer 到手对比」升级为 **七合一计算工具箱**，原 Offer 对比功能完整保留：
 
 | 工具 | 路由 | 简介 |
 |---|---|---|
@@ -26,6 +26,7 @@
 | 出生天数 | `#/days` | 自然日口径 + 周岁/周数/下次生日/天数里程碑 |
 | 纪念日计算器 | `#/anniversary` | 多条记录、本地持久化、周年与「第 N 天」节点 |
 | 时薪计算器 | `#/wage` | 时/分/秒/日薪 + 反向计算 + 按秒收入计数器 |
+| 财富 A 级测算 | `#/wealth` | A1–A10 财富段位、升级进度/时间轴/加速器/目标倒推 |
 
 - 首页（`#/`）为工具导航，零依赖 hash 路由，单文件构建与静态托管均可用。
 - 个税政策参数配置化（`src/config/taxPolicy.ts`）；年终奖单独计税政策执行至 2027-12-31（财政部 税务总局公告 2023 年第 30 号）。
@@ -49,8 +50,8 @@ npm run sanity   # 计算引擎自测（个税表 / 基数截断 / 试用期 / �
 
 ## 在线使用
 
-- 仓库地址：<https://github.com/atwu5/offer-compare>
-- 网页版（GitHub Pages，由 `docs/index.html` 提供）：<https://atwu5.github.io/offer-compare/>
+- 仓库地址：<https://github.com/atwu5/calc>
+- 网页版（GitHub Pages，由 `docs/index.html` 提供）：<https://atwu5.github.io/calc/>
   - 若链接未生效：仓库 Settings → Pages → Source 选择 `main` 分支 `/docs` 目录，保存即可。
 
 ---
