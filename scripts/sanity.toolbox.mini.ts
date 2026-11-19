@@ -8,6 +8,20 @@ import { calcDaysAlive } from '../miniprogram-src/engine/utils/daysAliveCalculat
 import { buildAnniversaryView } from '../miniprogram-src/engine/utils/anniversaryCalculator'
 import { calcRetirement } from '../miniprogram-src/engine/utils/retirementCalculator'
 import { calcHourlyWage, reverseMonthlyIncome } from '../miniprogram-src/engine/utils/hourlyWageCalculator'
+import {
+  addMonthsYM,
+  buildLevelProgress,
+  formatDurationCN,
+  formatMoneyCents,
+  formatYM,
+  isBeyondHorizon,
+  levelIndexOf,
+  milestonesAhead,
+  monthsToReach,
+  requiredMonthlyCents,
+  splitMonths,
+  toCents,
+} from '../miniprogram-src/engine/utils/wealthCalculator'
 
 let failed = 0
 function check(name: string, cond: boolean, detail?: string) {
@@ -57,5 +71,28 @@ check('时薪 126.92', near(wage.hourly, 126.92, 0.005))
 check('秒薪 > 0', wage.perSecond > 0.035 && wage.perSecond < 0.036)
 const rev = reverseMonthlyIncome(200, { daysPerWeek: 5, hoursPerDay: 8, paidWeeksPerYear: 52, useAnnualDays: false, annualWorkDays: 250 }, 0)
 check('反向月薪 34666.67', near(rev.monthlyIncome, 34666.67, 0.005))
+
+/* 财富 A 级：等级边界 + 需求书示例（与 Web 版同一套纯函数） */
+const Y = (v: number): number => toCents(v) as number
+check('财富边界 0/9.99→A1、10→A2、1亿→A9、10亿→A10',
+  levelIndexOf(Y(0)) === 1 && levelIndexOf(Y(9.99)) === 1 && levelIndexOf(Y(10)) === 2
+  && levelIndexOf(Y(100000000)) === 9 && levelIndexOf(Y(1000000000)) === 10)
+const wp = buildLevelProgress(Y(180000))
+check('财富进度 18万→A6 差 82万 ≈8.89%', wp.level.code === 'A6' && wp.gapCents === Y(820000) && near((wp.progress as number) * 100, 8.89, 0.005))
+check('财富时间轴 18万/月存5000→A7 需164个月(13年8个月)',
+  monthsToReach(Y(180000), Y(5000), Y(1000000)) === 164
+  && (() => { const s = splitMonths(164); return s.years === 13 && s.months === 8 })())
+check('财富起始月+164→2040-07', formatYM(addMonthsYM({ year: 2026, month: 11 }, 164)) === '2040 年 7 月')
+check('财富月存0不报除零、已达标返回0', monthsToReach(Y(1200000), 0, Y(2000000)) === null && monthsToReach(Y(1000000), Y(5000), Y(1000000)) === 0)
+check('财富加速 5000→164 / 8000→103，提前61个月(5年1个月)',
+  monthsToReach(Y(180000), Y(5000), Y(1000000)) === 164
+  && monthsToReach(Y(180000), Y(8000), Y(1000000)) === 103
+  && formatDurationCN(164 - 103) === '5 年 1 个月')
+check('财富倒推 5年(60个月)→月存13667元', requiredMonthlyCents(Y(180000), Y(1000000), 60) === Y(13667))
+check('财富里程碑 A6→20/30/50/80万，A1–A4无',
+  JSON.stringify(milestonesAhead(Y(0), 6)) === JSON.stringify([Y(200000), Y(300000), Y(500000), Y(800000)])
+  && milestonesAhead(Y(0), 3).length === 0)
+check('财富金额格式 元/万/亿', formatMoneyCents(Y(9.99)) === '9.99 元' && formatMoneyCents(Y(180000)) === '18 万元' && formatMoneyCents(Y(120000000)) === '1.2 亿元')
+check('财富超50年判定', isBeyondHorizon(600) === false && isBeyondHorizon(601) === true)
 
 console.log(failed === 0 ? '\n🎉 工具箱引擎副本自测全部通过' : `\n💥 ${failed} 项失败`)

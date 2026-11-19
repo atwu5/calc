@@ -1,0 +1,244 @@
+<view class="tb-page">
+  <!-- 第一步：资产输入 -->
+  <view class="tb-card tb-card-pad">
+    <view class="tb-label">统计对象</view>
+    <view class="tb-seg">
+      <view class="tb-seg-item {{scope === 'personal' ? 'tb-seg-active' : ''}}" bindtap="onScopeTap" data-scope="personal">个人</view>
+      <view class="tb-seg-item {{scope === 'family' ? 'tb-seg-active' : ''}}" bindtap="onScopeTap" data-scope="family">家庭</view>
+    </view>
+
+    <view class="tb-label" style="margin-top: 24rpx;">当前可用资产</view>
+    <view class="tb-hint">现金、存款、基金、股票等可支配金融净资产（扣除相关负债），不含自住房、汽车等非流动资产</view>
+    <view class="tb-row" style="gap: 14rpx;">
+      <view class="tb-field {{assetInvalid ? 'tb-field-invalid' : ''}}" style="flex: 1; min-width: 0;">
+        <input class="tb-field-input num" type="digit" value="{{assetDraft}}" placeholder="{{unit === 'wan' ? '如 18' : '如 180000'}}" placeholder-class="tb-placeholder" bindinput="onAssetInput" />
+        <view class="input-suffix">{{unit === 'wan' ? '万元' : '元'}}</view>
+      </view>
+      <view class="tb-seg" style="flex-shrink: 0;">
+        <view class="tb-seg-item {{unit === 'wan' ? 'tb-seg-active' : ''}}" bindtap="onUnitTap" data-unit="wan">万元</view>
+        <view class="tb-seg-item {{unit === 'yuan' ? 'tb-seg-active' : ''}}" bindtap="onUnitTap" data-unit="yuan">元</view>
+      </view>
+    </view>
+    <view tt:if="{{assetError}}" class="w-error-text">{{assetError}}</view>
+
+    <view tt:if="{{!measured}}" class="tb-btn-primary" style="margin-top: 28rpx;" bindtap="onMeasure">测测我的财富等级</view>
+  </view>
+
+  <!-- 第二步：段位卡 -->
+  <block tt:if="{{measured && levelVm}}">
+    <view class="tb-card" style="margin-top: 24rpx; padding: 32rpx 28rpx;">
+      <view class="w-badge-row">
+        <view class="w-badge-lg" style="{{levelVm.badgeStyle}}">{{levelVm.code}}</view>
+        <view style="min-width: 0; flex: 1;">
+          <view class="tb-result-label">我的财富段位</view>
+          <view class="w-hero num">{{levelVm.code}}<text class="w-hero-sub" style="color: #6f6b80; font-size: 26rpx; font-weight: 500; margin-left: 14rpx;">{{levelVm.assetText}}</text></view>
+          <view class="tb-hint" style="margin-bottom: 0;">{{levelVm.scopeText}}口径 · {{levelVm.labelText}}</view>
+        </view>
+      </view>
+
+      <block tt:if="{{levelVm.hasNext}}">
+        <view style="border-top: 1rpx solid #f0eef6; margin-top: 26rpx; padding-top: 24rpx;">
+          <view class="tb-row-between">
+            <view class="tb-hint" style="margin-bottom: 0;">升级进度（{{levelVm.code}} → {{levelVm.nextCode}}）</view>
+            <view class="num w-pct">{{levelVm.progressPctText}}%</view>
+          </view>
+          <view class="tb-progress" style="margin-top: 14rpx;">
+            <view class="tb-progress-bar" style="{{levelVm.barStyle}}"></view>
+          </view>
+          <view class="tb-grid3" style="margin-top: 20rpx;">
+            <view style="text-align: center;">
+              <view class="tb-mini-label">{{levelVm.code}} 起点</view>
+              <view class="num w-grid-value">{{levelVm.startPoint}}</view>
+            </view>
+            <view style="text-align: center;">
+              <view class="tb-mini-label">{{levelVm.nextCode}} 门槛</view>
+              <view class="num w-grid-value">{{levelVm.thresholdPoint}}</view>
+            </view>
+            <view style="text-align: center;">
+              <view class="tb-mini-label">距离 {{levelVm.nextCode}}</view>
+              <view class="num w-grid-value">{{levelVm.gapPoint}}</view>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view tt:if="{{levelVm.topText}}" class="w-gold" style="margin-top: 26rpx;">{{levelVm.topText}}</view>
+    </view>
+
+    <!-- 财富阶梯 -->
+    <view class="tb-card tb-card-pad" style="margin-top: 24rpx;">
+      <view class="tb-strong" style="font-size: 26rpx; margin-bottom: 20rpx;">财富阶梯（点击查看门槛）</view>
+      <view class="w-ladder">
+        <view tt:for="{{ladder}}" tt:for-item="lv" tt:key="code" class="w-ladder-cell" style="{{lv.itemStyle}}" bindtap="onLadderTap" data-index="{{index + 1}}">
+          <view class="w-badge-sm" style="{{lv.badgeStyle}}">{{lv.code}}</view>
+          <view class="w-ladder-code num">{{lv.code}}</view>
+          <view class="w-ladder-mark">{{lv.mark}}</view>
+        </view>
+      </view>
+      <view class="w-detail num" style="margin-top: 20rpx;">{{ladderDetailText}}</view>
+    </view>
+
+    <!-- 第三步：升级时间轴 -->
+    <view class="tb-card tb-card-pad" style="margin-top: 24rpx;">
+      <view class="tb-strong" style="font-size: 26rpx; margin-bottom: 20rpx;">财富升级时间轴</view>
+
+      <block tt:if="{{curIdx < 10}}">
+        <view class="tb-label">每月可存金额</view>
+        <view class="tb-hint">扣除生活开支、贷款还款等支出后的实际结余</view>
+        <view class="tb-field {{monthlyInvalid ? 'tb-field-invalid' : ''}}">
+          <input class="tb-field-input num" type="digit" value="{{monthlyDraft}}" placeholder="如 5000" placeholder-class="tb-placeholder" bindinput="onMonthlyInput" />
+          <view class="input-suffix">元 / 月</view>
+        </view>
+
+        <view class="tb-label" style="margin-top: 24rpx;">起始月份</view>
+        <view class="tb-hint">第一笔新增储蓄发生在下一个月底</view>
+        <view class="tb-grid2" style="margin-top: 0;">
+          <picker mode="selector" range="{{yearLabels}}" value="{{startYearIdx}}" bindchange="onStartYearChange">
+            <view class="select-box"><view class="select-value num">{{yearLabels[startYearIdx]}}</view><view class="select-arrow">▾</view></view>
+          </picker>
+          <picker mode="selector" range="{{monthLabels}}" value="{{startMonthIdx}}" bindchange="onStartMonthChange">
+            <view class="select-box"><view class="select-value num">{{monthLabels[startMonthIdx]}}</view><view class="select-arrow">▾</view></view>
+          </picker>
+        </view>
+
+        <view tt:if="{{!timelineShown}}" class="tb-btn-primary" style="margin-top: 28rpx;" bindtap="onGenerateTimeline">生成我的财富升级路线</view>
+      </block>
+
+      <view tt:if="{{timelineShown && timelineNote}}" class="tb-note tb-note-warn" style="margin-top: 24rpx;">{{timelineNote}}</view>
+
+      <block tt:if="{{timelineShown && timeline.length > 0}}">
+        <view style="margin-top: 28rpx;">
+          <view tt:for="{{timeline}}" tt:for-item="node" tt:key="title" class="w-tl">
+            <view class="w-tl-left">
+              <view tt:if="{{node.isNow}}" class="w-badge-tl" style="{{node.badgeStyle}}">现在</view>
+              <view tt:elif="{{!node.isMilestone}}" class="w-badge-tl w-badge-tl-sm" style="{{node.badgeStyle}}">{{node.title}}</view>
+              <view tt:else class="w-dot" style="{{node.dotStyle}}"><view class="w-dot-inner" style="{{node.dotInnerStyle}}"></view></view>
+              <view class="w-rail"></view>
+            </view>
+            <view class="w-tl-card {{node.cardClass}}">
+              <view class="tb-row-between">
+                <view style="min-width: 0; flex: 1;" class="tb-strong w-tl-title">{{node.title}}<text tt:if="{{node.amountText}}" class="w-tl-amount">{{node.amountText}}</text></view>
+                <view tt:if="{{node.chipText}}" class="tb-milestone-chip" style="flex-shrink: 0;">{{node.chipText}}</view>
+                <view tt:if="{{node.right}}" class="num w-tl-right">{{node.right}}</view>
+              </view>
+              <view tt:if="{{node.sub}}" class="tb-hint" style="margin: 8rpx 0 0;">{{node.sub}}</view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 第四步：加速器 / 目标倒推 -->
+    <view class="tb-card tb-card-pad" style="margin-top: 24rpx;">
+      <view class="tb-seg">
+        <view class="tb-seg-item {{tab === 'accel' ? 'tb-seg-active' : ''}}" bindtap="onTabTap" data-tab="accel">⚡ 升级加速器</view>
+        <view class="tb-seg-item {{tab === 'goal' ? 'tb-seg-active' : ''}}" bindtap="onTabTap" data-tab="goal">🎯 目标倒推</view>
+      </view>
+
+      <view tt:if="{{targetAdjusted}}" class="tb-note" style="margin-top: 20rpx;">你之前选择的目标等级已经达成，已自动切换到下一个未达成等级</view>
+
+      <view class="tb-label" style="margin-top: 24rpx;">目标等级</view>
+      <picker mode="selector" range="{{targetLabels}}" value="{{targetIdx}}" bindchange="onTargetChange">
+        <view class="select-box"><view class="select-value">{{targetLabels[targetIdx]}}</view><view class="select-arrow">▾</view></view>
+      </picker>
+
+      <!-- 加速器 -->
+      <block tt:if="{{tab === 'accel'}}">
+        <view class="tb-label" style="margin-top: 24rpx;">每月额外储蓄</view>
+        <view class="tb-hint">滑块快捷刻度 0 / 500 / 1000 / 2000 / 3000 / 5000 / 10000，也可手动输入其他金额</view>
+        <slider class="w-slider" min="0" max="10000" step="500" value="{{sliderVal}}" activeColor="#6d5bf6" backgroundColor="#f1eff8" block-size="24" bindchanging="onSliderInput" bindchange="onSliderInput" />
+        <view class="tb-field" style="margin-top: 14rpx;">
+          <input class="tb-field-input num" type="digit" value="{{extraDraft}}" placeholder="额外每月多存多少" placeholder-class="tb-placeholder" bindinput="onExtraInput" />
+          <view class="input-suffix">元 / 月</view>
+        </view>
+
+        <view tt:if="{{accelHint}}" class="tb-note" style="margin-top: 24rpx;">{{accelHint}}</view>
+
+        <block tt:if="{{accelVm}}">
+          <view class="tb-grid2" style="margin-top: 24rpx;">
+            <view class="tb-mini">
+              <view class="tb-mini-label">原计划</view>
+              <view class="tb-mini-value num" style="font-size: 30rpx;">{{accelVm.baseText}}</view>
+              <view class="tb-mini-sub">{{accelVm.baseSub}}</view>
+            </view>
+            <view class="tb-mini">
+              <view class="tb-mini-label">加速计划</view>
+              <view class="tb-mini-value num" style="font-size: 30rpx;">{{accelVm.fastText}}</view>
+              <view class="tb-mini-sub">{{accelVm.fastSub}}</view>
+            </view>
+          </view>
+          <view tt:if="{{accelVm.summary}}" class="w-gold" style="margin-top: 20rpx;">{{accelVm.summary}}</view>
+          <view tt:if="{{accelVm.warn}}" class="tb-note tb-note-warn" style="margin-top: 20rpx;">{{accelVm.warn}}</view>
+        </block>
+      </block>
+
+      <!-- 目标倒推 -->
+      <block tt:if="{{tab === 'goal'}}">
+        <view class="tb-label" style="margin-top: 24rpx;">目标达成日期</view>
+        <view class="tb-hint">想在什么时候站上这个门槛</view>
+        <view class="tb-grid2" style="margin-top: 0;">
+          <picker mode="selector" range="{{yearLabels}}" value="{{goalYearIdx >= 0 ? goalYearIdx : 0}}" bindchange="onGoalYearChange">
+            <view class="select-box"><view class="select-value {{goalYearIdx < 0 ? 'select-placeholder' : ''}}">{{goalYearIdx >= 0 ? yearLabels[goalYearIdx] : '选择年份'}}</view><view class="select-arrow">▾</view></view>
+          </picker>
+          <picker mode="selector" range="{{monthLabels}}" value="{{goalMonthIdx >= 0 ? goalMonthIdx : 0}}" bindchange="onGoalMonthChange">
+            <view class="select-box"><view class="select-value {{goalMonthIdx < 0 ? 'select-placeholder' : ''}}">{{goalMonthIdx >= 0 ? monthLabels[goalMonthIdx] : '选择月份'}}</view><view class="select-arrow">▾</view></view>
+          </picker>
+        </view>
+        <view class="w-quick">
+          <view class="w-quick-item" bindtap="onQuickGoal" data-months="36">3 年后</view>
+          <view class="w-quick-item" bindtap="onQuickGoal" data-months="60">5 年后</view>
+          <view class="w-quick-item" bindtap="onQuickGoal" data-months="120">10 年后</view>
+        </view>
+
+        <view tt:if="{{goalNote}}" class="tb-note" style="margin-top: 24rpx;">{{goalNote}}</view>
+
+        <block tt:if="{{goalVm}}">
+          <view class="tb-grid2" style="margin-top: 24rpx;">
+            <view class="tb-mini">
+              <view class="tb-mini-label">目标门槛</view>
+              <view class="tb-mini-value num" style="font-size: 28rpx;">{{goalVm.thresholdText}}</view>
+              <view class="tb-mini-sub">{{goalVm.thresholdSub}}</view>
+            </view>
+            <view class="tb-mini">
+              <view class="tb-mini-label">资产差额</view>
+              <view class="tb-mini-value num" style="font-size: 28rpx;">{{goalVm.gapText}}</view>
+              <view class="tb-mini-sub">{{goalVm.gapSub}}</view>
+            </view>
+            <view class="tb-mini">
+              <view class="tb-mini-label">目标达成</view>
+              <view class="tb-mini-value num" style="font-size: 28rpx;">{{goalVm.whenText}}</view>
+              <view class="tb-mini-sub">{{goalVm.whenSub}}</view>
+            </view>
+            <view class="tb-mini">
+              <view class="tb-mini-label">每月最低需存</view>
+              <view class="tb-mini-value num" style="font-size: 28rpx;">{{goalVm.needText}}</view>
+              <view class="tb-mini-sub">{{goalVm.needSub}}</view>
+            </view>
+          </view>
+          <view class="w-blue" style="margin-top: 20rpx;">{{goalVm.compareText}}</view>
+        </block>
+      </block>
+    </view>
+  </block>
+
+  <!-- 隐私与保存 -->
+  <view class="tb-card tb-card-pad" style="margin-top: 24rpx;">
+    <view class="w-save-row" bindtap="onSaveToggle">
+      <view class="tb-check {{saveLocal ? 'tb-check-on' : ''}}"><view tt:if="{{saveLocal}}">✓</view></view>
+      <view class="tb-strong" style="font-size: 24rpx;">在本机保存（下次打开自动恢复，仅存本机）</view>
+    </view>
+    <view class="tb-note tb-note-warn" style="margin-top: 18rpx;">
+      所有金额均在本地计算，不会上传。测算在本地完成，不上传你的资产信息；开启「在本机保存」前，输入仅保存在本次使用期间。
+    </view>
+  </view>
+
+  <!-- 规则说明 -->
+  <view class="tb-card tb-card-pad" style="margin-top: 24rpx;">
+    <view class="tb-strong" style="font-size: 26rpx; margin-bottom: 18rpx;">规则说明</view>
+    <view class="tb-note" style="margin-bottom: 14rpx;">财富 A 级按照资产数量级划分（左闭右开区间），仅供趣味测算，并非官方财富等级标准。</view>
+    <view class="tb-note" style="margin-bottom: 14rpx;">可用资产指现金、存款、基金、股票等可支配金融净资产，不含自住房产等非流动资产。</view>
+    <view class="tb-note" style="margin-bottom: 14rpx;">升级时间按照当前资产及每月固定储蓄计算（每月底存入一次，不计投资收益、通货膨胀、收入变化及意外支出），结果仅供参考。</view>
+    <view class="tb-note">超过 50 年的预测统一显示「超过 50 年」；中间里程碑不改变正式 A 级等级。</view>
+  </view>
+
+  <view class="tb-footer">所有计算均在本地完成，数据不上传服务器，结果仅供参考。</view>
+</view>

@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/home/home",
+    "pages/wealth/wealth",
     "pages/index/index",
     "pages/tax/tax",
     "pages/retire/retire",

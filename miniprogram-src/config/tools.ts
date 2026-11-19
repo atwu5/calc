@@ -8,6 +8,7 @@ export interface ToolMeta {
 }
 
 export const TOOLS: ToolMeta[] = [
+  { path: '/pages/wealth/wealth', icon: '🏆', name: '财富 A 级测算', desc: '测测你的财富段位，看看多久能升级', tint: '#F5F0DE' },
   { path: '/pages/index/index', icon: '⚖️', name: 'Offer 对比', desc: '两份工作机会，算算哪个更划算', tint: '#EEECFE' },
   { path: '/pages/tax/tax', icon: '💰', name: '个税计算器', desc: '算清税前税后，到手多少钱', tint: '#E8F4FE' },
   { path: '/pages/retire/retire', icon: '⏳', name: '退休倒计时', desc: '距离退休，还有多少个日夜', tint: '#FFF1E7' },
