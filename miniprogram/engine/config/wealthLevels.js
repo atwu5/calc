@@ -11,7 +11,7 @@
  * 单位约定：金额内部统一用「分」的整数（integer cents），避免 JS 浮点误差。
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MAX_MONTHLY_YUAN = exports.MAX_ASSET_YUAN = exports.HORIZON_MONTHS = exports.MILESTONE_FROM_INDEX = exports.MILESTONE_FACTORS = exports.MAX_LEVEL_INDEX = exports.WEALTH_LEVELS = exports.CENTS_PER_YUAN = void 0;
+exports.RANK_COLORS = exports.RANK_SHORT_LABELS = exports.RANK_NAMES = exports.MAX_MONTHLY_YUAN = exports.MAX_ASSET_YUAN = exports.HORIZON_MONTHS = exports.MILESTONE_FROM_INDEX = exports.MILESTONE_FACTORS = exports.MAX_LEVEL_INDEX = exports.WEALTH_LEVELS = exports.CENTS_PER_YUAN = void 0;
 exports.CENTS_PER_YUAN = 100;
 const YUAN_THRESHOLDS = [10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000];
 /** 徽章配色按需求文档：蓝→青→青绿→草绿→金黄→橙→红→玫红→紫→深蓝金属 */
@@ -65,3 +65,42 @@ exports.HORIZON_MONTHS = 600;
 /** 输入上限：资产 10 万亿元、月储蓄 10 亿元，超出按非法处理 */
 exports.MAX_ASSET_YUAN = 1e13;
 exports.MAX_MONTHLY_YUAN = 1e9;
+/** 段位称号（与 docs/wealth.html 设计稿一致） */
+exports.RANK_NAMES = [
+    '起步冒险者',
+    '微光收集者',
+    '初阶探索者',
+    '积累学徒',
+    '财富新秀',
+    '进阶积累者',
+    '百万领航者',
+    '千万征服者',
+    '亿元传奇',
+    '财富巅峰',
+];
+/** 段位简称（设计稿 small 标签） */
+exports.RANK_SHORT_LABELS = [
+    '起步阶段',
+    '十元级',
+    '百元级',
+    '千元级',
+    '万元级',
+    '十万元级',
+    '百万元级',
+    '千万元级',
+    '亿元级',
+    '十亿元级',
+];
+/** 段位主色（设计稿 rank-path 徽章色，1:1 对应 A1–A10） */
+exports.RANK_COLORS = [
+    '#71a8fa',
+    '#4fc8ec',
+    '#56d1c5',
+    '#8fc563',
+    '#e6b65a',
+    '#ff9258',
+    '#ef677b',
+    '#db69be',
+    '#ad79f7',
+    '#6fa4ff',
+];

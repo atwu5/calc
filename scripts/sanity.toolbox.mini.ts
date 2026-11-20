@@ -11,8 +11,10 @@ import { calcHourlyWage, reverseMonthlyIncome } from '../miniprogram-src/engine/
 import {
   addMonthsYM,
   buildLevelProgress,
+  candidateMilestoneCents,
   formatDurationCN,
   formatMoneyCents,
+  formatMoneyShortCents,
   formatYM,
   isBeyondHorizon,
   levelIndexOf,
@@ -92,6 +94,22 @@ check('财富倒推 5年(60个月)→月存13667元', requiredMonthlyCents(Y(180
 check('财富里程碑 A6→20/30/50/80万，A1–A4无',
   JSON.stringify(milestonesAhead(Y(0), 6)) === JSON.stringify([Y(200000), Y(300000), Y(500000), Y(800000)])
   && milestonesAhead(Y(0), 3).length === 0)
+check('设计稿里程碑候选条 A6/18万→28万/55万/82万/100万（首张 featured）',
+  (() => { const c = candidateMilestoneCents(Y(180000), 6); return c.length === 4
+    && c[0].cents === Y(280000) && c[0].isRank === false
+    && c[1].cents === Y(550000) && c[2].cents === Y(820000)
+    && c[3].cents === Y(1000000) && c[3].isRank === true })())
+check('设计稿里程碑候选条 A5/0→2.8万/5.5万/8.2万/10万',
+  (() => { const c = candidateMilestoneCents(Y(0), 5); return c.length === 4
+    && c[0].cents === Y(28000) && c[0].isRank === false
+    && c[1].cents === Y(55000) && c[2].cents === Y(82000)
+    && c[3].cents === Y(100000) && c[3].isRank === true })())
+check('设计稿里程碑候选条：A4 无阶段目标，门槛+后续三级',
+  (() => { const c = candidateMilestoneCents(Y(0), 4); return c.length === 4
+    && c[0].cents === Y(10000) && c[0].isRank
+    && c[1].cents === Y(100000) && c[2].cents === Y(1000000) && c[3].cents === Y(10000000) })())
+check('设计稿短金额格式 fmtShort',
+  formatMoneyShortCents(Y(180000)) === '18 万' && formatMoneyShortCents(Y(1000000)) === '100 万' && formatMoneyShortCents(Y(9.99)) === '9.99 元' && formatMoneyShortCents(Y(120000000)) === '1.2 亿')
 check('财富金额格式 元/万/亿', formatMoneyCents(Y(9.99)) === '9.99 元' && formatMoneyCents(Y(180000)) === '18 万元' && formatMoneyCents(Y(120000000)) === '1.2 亿元')
 check('财富超50年判定', isBeyondHorizon(600) === false && isBeyondHorizon(601) === true)
 

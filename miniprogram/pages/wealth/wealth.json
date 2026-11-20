@@ -1,4 +1,7 @@
 {
-  "navigationBarTitleText": "财富 A 级测算",
+  "navigationBarTitleText": "你算A 几？ · 财富 A 级测算",
+  "navigationBarBackgroundColor": "#090d1b",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#080d1b",
   "usingComponents": {}
 }

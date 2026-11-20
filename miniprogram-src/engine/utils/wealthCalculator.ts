@@ -195,3 +195,46 @@ export function formatMoneyCents(cents: number): string {
 export function formatIntCNY(yuan: number): string {
   return fmtNum(Math.ceil(yuan), 0)
 }
+
+/** 设计稿 fmtShort：18 万 → '18 万'，不幕「元」字（用于徽章/小卡） */
+export function formatMoneyShortCents(cents: number): string {
+  const yuan = cents / CENTS_PER_YUAN
+  const trim = (v: number, unit: string): string => {
+    const fen = Math.round(v * 100)
+    const digits = fen % 100 === 0 ? 0 : fen % 10 === 0 ? 1 : 2
+    return `${fmtNum(fen / 100, digits)} ${unit}`
+  }
+  if (yuan < 1e4) {
+    const fen = Math.round(yuan * 100)
+    const digits = fen % 100 === 0 ? 0 : fen % 10 === 0 ? 1 : 2
+    return `${fmtNum(fen / 100, digits)} 元`
+  }
+  if (yuan < 1e8) {
+    return trim(yuan / 1e4, '万')
+  }
+  return trim(yuan / 1e8, '亿')
+}
+
+/**
+ * 设计稿 candidateMilestones：里程碑卡片条（最多 4 张，首张 featured）。
+ * 组成：当前等级内 20%/50%/80% 阶段目标（仅 A5+，未达成的）→ 下一级门槛 → 再往后最多三级门槛。
+ * 里程碑不改变正式 A 级等级。
+ */
+export function candidateMilestoneCents(assetCents: number, levelIndex: number): Array<{ cents: number; isRank: boolean }> {
+  if (levelIndex >= MAX_LEVEL_INDEX) return []
+  const level = levelByIndex(levelIndex)
+  const nextMin = level.maxCents as number
+  const span = nextMin - level.minCents
+  const all: Array<{ cents: number; isRank: boolean }> = []
+  if (levelIndex >= 5) {
+    for (const ratio of [0.2, 0.5, 0.8]) {
+      const t = Math.round((level.minCents + span * ratio) / CENTS_PER_YUAN) * CENTS_PER_YUAN
+      if (t > assetCents && t < nextMin) all.push({ cents: t, isRank: false })
+    }
+  }
+  all.push({ cents: nextMin, isRank: true })
+  for (let j = levelIndex + 1; j < Math.min(levelIndex + 4, MAX_LEVEL_INDEX); j++) {
+    all.push({ cents: levelByIndex(j + 1).minCents, isRank: true })
+  }
+  return all.slice(0, 4)
+}
